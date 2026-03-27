@@ -1,7 +1,15 @@
 from langchain_community.document_loaders import TextLoader
 
-data = TextLoader("document loaders/DSA.txt")
+# SPLIT BY TOKEN
+from langchain_text_splitters import CharacterTextSplitter
+
+splitter = CharacterTextSplitter(separator="", chunk_size=10, chunk_overlap=1)
+
+data = TextLoader("document loaders/notes.txt")
 
 docs = data.load()
 
-print(docs[0].page_content)
+chunks = splitter.split_documents(docs)
+
+for i in chunks:
+    print(i.page_content)
