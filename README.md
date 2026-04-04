@@ -96,7 +96,7 @@ This step is executed once and reused across sessions.
 ## Installation
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Mitali-A13/CourseMateAI.git
 cd CourseMateAI
 ```
 
