@@ -10,46 +10,22 @@ CourseMateAI is designed to solve the problem of extracting meaningful insights 
 
 The architecture follows a two-phase pipeline:
 
-* **Ingestion Phase (Offline):** Document loading, chunking, embedding generation, and storage in a vector database.
-* **Retrieval + Generation Phase (Online):** Query processing, semantic retrieval, and response generation using an LLM.
+* **Ingestion Phase (Offline):** Document loading, chunking, embedding generation, and storage in a vector database
+* **Retrieval + Generation Phase (Online):** Query processing, semantic retrieval, and response generation using an LLM
 
 ---
 
 ## Architecture
 
-### Visual Diagram
-
-```mermaid
-flowchart TD
-
-    subgraph Offline Phase (Ingestion)
-        A[Documents] --> B[Chunking]
-        B --> C[Embeddings (Gemini)]
-        C --> D[Vector Store (Chroma DB)]
-    end
-
-    subgraph Online Phase (Query Time)
-        E[User Query] --> F[Query Embedding]
-        F --> G[Retriever]
-        G --> D
-        D --> H[Top-K Relevant Chunks]
-        H --> I[Context + Query]
-        I --> J[LLM (Mistral)]
-        J --> K[Final Answer]
-    end
-```
-
----
-
-### Simple Flow
+### System Flow
 
 ```
-Offline:
-Documents → Chunking → Embeddings → Vector DB
+Offline Phase (Ingestion):
+Documents → Chunking → Embeddings → Vector Database (Chroma)
 
-Online:
-Query → Embedding → Retriever → Vector DB
-      → Top-K Chunks → Context + Query → LLM → Answer
+Online Phase (Query):
+User Query → Query Embedding → Retriever → Vector Database
+           → Top-K Relevant Chunks → Context + Query → LLM → Final Answer
 ```
 
 ---
