@@ -1,6 +1,6 @@
-from loaders import load_pdf
-from loaders import load_text
-from loaders import load_web
+from loaders.pdf_loader import load_pdf
+from loaders.text_loader import load_text
+from loaders.web_loader import load_web
 
 
 # a function to detect which type of loader to activate

@@ -1,44 +1,40 @@
-from dotenv import load_dotenv
-from langchain_mistralai import ChatMistralAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_community.vectorstores import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from fastapi import FastAPI, UploadFile
+import uuid
+import os
+from services.ingest import ingest_data
+from services.query import query_rag
+from utils.file_utils import get_file_type
 
-load_dotenv()
+app = FastAPI()
 
-# CREATE EMBEDDING OF THE QUERY
-embedding_model = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
-vector_store = Chroma(persist_directory="chroma_db", embedding_function=embedding_model)
 
-# CREATE A RETRIEVER
-retriever = vector_store.as_retriever(
-    search_type="mmr", search_kwargs={"k": 4, "fetch_k": 10, "lambda_mult": 0.5}
-)
+# Upload endpoint
+@app.post("/upload")
+async def upload_file(file: UploadFile):
+    file_type = get_file_type(file.filename)
 
-# DEFINED THE CHAT-MODEL
-llm = ChatMistralAI(model="mistral-small-2506")
+    # create folder if not exists
+    os.makedirs("temp", exist_ok=True)
 
-# PROMPT TEMPLATE
-template = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """You are a helpful AI assistant.
+    file_path = f"temp/{uuid.uuid4()}_{file.filename}"
 
-            Use ONLY the provided context to answer the question.
+    with open(file_path, "wb") as f:
+        f.write(await file.read())
 
-            If the answer is not present in the context,
-            say: "I could not find the answer in the document."
-            """,
-        ),
-        (
-            "human",
-            """Context:
-            {context}
+    ingest_data(file_path, file_type)
 
-            Question:
-            {question}
-            """,
-        ),
-    ]
-)
+    return {"message": "File processed successfully"}
+
+
+# URL endpoint
+@app.post("/upload/url")
+def upload_url(url: str):
+    ingest_data(url, "url")
+    return {"message": "URL processed successfully"}
+
+
+# Query endpoint
+@app.post("/query")
+def query(question: str):
+    answer = query_rag(question)
+    return {"answer": answer}
